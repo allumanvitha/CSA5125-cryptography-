@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+// Find modular inverse of a mod m
+int modInverse(int a, int m) {
+    a = a % m;
+    for (int x = 1; x < m; x++)
+        if ((a * x) % m == 1)
+            return x;
+    return -1;
+}
+
+// Decrypt a character
+char decryptChar(char ch, int a, int b) {
+    if (isalpha(ch)) {
+        ch = toupper(ch);
+        int a_inv = modInverse(a, 26);
+        if (a_inv == -1) {
+            return '?';
+        }
+        return (a_inv * ((ch - 'A' - b + 26) % 26)) % 26 + 'A';
+    }
+    return ch;
+}
+
+// Decrypt full text
+void decryptText(const char* ciphertext, char* plaintext, int a, int b) {
+    int i;
+    for (i = 0; ciphertext[i]; i++) {
+        plaintext[i] = decryptChar(ciphertext[i], a, b);
+    }
+    plaintext[i] = '\0';
+}
+
+int main() {
+    // Known mappings
+    int C1 = 1;   // 'B'
+    int C2 = 20;  // 'U'
+    int P1 = 4;   // 'E'
+    int P2 = 19;  // 'T'
+
+    // Solve 15a ≡ 19 (mod 26)
+    int deltaC = (C2 - C1 + 26) % 26;
+    int deltaP = (P2 - P1 + 26) % 26;
+    int invDeltaP = modInverse(deltaP, 26);
+
+    if (invDeltaP == -1) {
+        printf("Cannot solve. No modular inverse for %d under mod 26.\n", deltaP);
+        return 1;
+    }
+
+    int a = (deltaC * invDeltaP) % 26;
+    int b = (C1 - a * P1 + 26 * 26) % 26;
+
+    printf("Recovered keys: a = %d, b = %d\n", a, b);
+
+    // Sample ciphertext to decrypt (you can modify this)
+    char ciphertext[256];
+    char plaintext[256];
+
+    printf("Enter ciphertext to decrypt: ");
+    getchar(); // consume newline left from previous input
+    fgets(ciphertext, sizeof(ciphertext), stdin);
+    ciphertext[strcspn(ciphertext, "\n")] = '\0'; // remove newline
+
+    decryptText(ciphertext, plaintext, a, b);
+    printf("Decrypted text: %s\n", plaintext);
+
+    return 0;
+}

@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define SIZE 2
+
+// Key matrix
+int key[SIZE][SIZE] = {
+    {9, 4},
+    {5, 7}
+};
+
+// Function to multiply 2x2 matrix with 2x1 vector mod 26
+void encrypt_pair(int a, int b, int *x, int *y) {
+    *x = (key[0][0] * a + key[0][1] * b) % 26;
+    *y = (key[1][0] * a + key[1][1] * b) % 26;
+}
+
+// Function to preprocess text: remove non-alpha and pad with 'X' if needed
+void preprocess(char *input, char *output) {
+    int j = 0;
+    for (int i = 0; input[i]; ++i) {
+        if (isalpha(input[i])) {
+            output[j++] = toupper(input[i]);
+        }
+    }
+    if (j % 2 != 0)
+        output[j++] = 'X'; // padding
+    output[j] = '\0';
+}
+
+// Encrypt the whole message
+void hill_encrypt(char *plaintext) {
+    char clean[512];
+    preprocess(plaintext, clean);
+
+    printf("Encrypted Message:\n");
+    for (int i = 0; clean[i]; i += 2) {
+        int a = clean[i] - 'A';
+        int b = clean[i+1] - 'A';
+        int x, y;
+        encrypt_pair(a, b, &x, &y);
+        printf("%c%c", x + 'A', y + 'A');
+    }
+    printf("\n");
+}
+
+int main() {
+    char message[] = "meet me at the usual place at ten rather than eight oclock";
+    hill_encrypt(message);
+    return 0;
+}

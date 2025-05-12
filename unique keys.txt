@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <math.h>
+
+// Function to compute log2(n!)
+double log2_factorial(int n) {
+    double result = 0.0;
+    for (int i = 2; i <= n; i++) {
+        result += log2(i);
+    }
+    return result;
+}
+
+int main() {
+    int total_letters = 25; // Playfair uses 25-letter alphabet (I/J combined)
+    
+    // Step 1: Total number of possible keys = 25!
+    double log2_total_keys = log2_factorial(total_letters);
+    
+    // Step 2: Approximate number of keys that give same encryption (symmetries)
+    // Based on literature, approx 25! / 4 due to rotations, reflections, etc.
+    double log2_effective_keys = log2_total_keys - log2(4); // Divide by 4 equivalent keys
+
+    // Step 3: Output results
+    printf("Approx total Playfair keys: 2^%.2f\n", log2_total_keys);
+    printf("Approx unique Playfair keys (adjusted for equivalence): 2^%.2f\n", log2_effective_keys);
+
+    return 0;
+}

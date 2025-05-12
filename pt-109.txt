@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define SIZE 5
+
+char matrix[SIZE][SIZE];
+
+// Check if character is already used
+int alreadyUsed(char used[], char ch, int length) {
+    for (int i = 0; i < length; i++)
+        if (used[i] == ch) return 1;
+    return 0;
+}
+
+// Generate 5x5 Playfair matrix from keyword
+void generateMatrix(const char *key) {
+    char used[26] = {0};
+    int k = 0, x = 0, y = 0;
+
+    for (int i = 0; key[i]; i++) {
+        char ch = toupper(key[i]);
+        if (ch == 'J') ch = 'I';
+        if (isalpha(ch) && !alreadyUsed(used, ch, k)) {
+            used[k++] = ch;
+            matrix[x][y++] = ch;
+            if (y == SIZE) { x++; y = 0; }
+        }
+    }
+
+    for (char ch = 'A'; ch <= 'Z'; ch++) {
+        if (ch == 'J') continue;
+        if (!alreadyUsed(used, ch, k)) {
+            used[k++] = ch;
+            matrix[x][y++] = ch;
+            if (y == SIZE) { x++; y = 0; }
+        }
+    }
+}
+
+// Find position of a character in matrix
+void findPosition(char ch, int *row, int *col) {
+    if (ch == 'J') ch = 'I';
+    for (int i = 0; i < SIZE; i++)
+        for (int j = 0; j < SIZE; j++)
+            if (matrix[i][j] == ch) {
+                *row = i;
+                *col = j;
+                return;
+            }
+}
+
+// Decrypt one pair of letters
+void decryptPair(char a, char b, char *out) {
+    int row1, col1, row2, col2;
+    findPosition(a, &row1, &col1);
+    findPosition(b, &row2, &col2);
+
+    if (row1 == row2) {
+        out[0] = matrix[row1][(col1 + SIZE - 1) % SIZE];
+        out[1] = matrix[row2][(col2 + SIZE - 1) % SIZE];
+    } else if (col1 == col2) {
+        out[0] = matrix[(row1 + SIZE - 1) % SIZE][col1];
+        out[1] = matrix[(row2 + SIZE - 1) % SIZE][col2];
+    } else {
+        out[0] = matrix[row1][col2];
+        out[1] = matrix[row2][col1];
+    }
+}
+
+// Decrypt entire ciphertext
+void decryptPlayfair(const char *ciphertext, char *plaintext) {
+    int len = strlen(ciphertext);
+    int p = 0;
+    for (int i = 0; i < len; i += 2) {
+        char a = toupper(ciphertext[i]);
+        char b = toupper(ciphertext[i + 1]);
+        if (a == 'J') a = 'I';
+        if (b == 'J') b = 'I';
+        char pair[2];
+        decryptPair(a, b, pair);
+        plaintext[p++] = pair[0];
+        plaintext[p++] = pair[1];
+    }
+    plaintext[p] = '\0';
+}
+
+int main() {
+    const char *key = "MONARCHY";
+    char ciphertext[] =
+        "KXJEYUREBEZWEHEWRYTUHEYFS";
+
+    char plaintext[512];
+
+    generateMatrix(key);
+    decryptPlayfair(ciphertext, plaintext);
+
+    printf("Decrypted message:\n%s\n", plaintext);
+
+    return 0;
+}

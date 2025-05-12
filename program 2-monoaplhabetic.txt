@@ -1,0 +1,20 @@
+#include <stdio.h>
+#include <ctype.h>
+void encrypt(char *text, char *key) {
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (isalpha(text[i])) {
+            char base = isupper(text[i]) ? 'A' : 'a';
+            int index = text[i] - base;
+            text[i] = isupper(text[i]) ? toupper(key[index]) : tolower(key[index]);
+        }
+    }
+}
+int main() {
+    char text[100];
+    char key[27] = "QWERTYUIOPASDFGHJKLZXCVBNM";
+    printf("Enter a message: ");
+    fgets(text, sizeof(text), stdin);
+    encrypt(text, key);
+    printf("Encrypted message: %s", text);
+    return 0;
+}
