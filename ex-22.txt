@@ -1,0 +1,15 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Simple illustration: k changes => signature changes
+int main() {
+    srand(time(NULL));
+    int message = 1234;
+    for(int i=0; i<3; i++) {
+        int k = rand() % 10000; // random nonce per signature
+        int signature = (message * k) % 10007; // simplified
+        printf("Signature %d: %d\n", i+1, signature);
+    }
+    return 0;
+}

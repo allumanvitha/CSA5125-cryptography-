@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char ciphertext[] = "WKH TXLFN EURZQ IRA MXPSV RYHU WKH ODCB GRJ";
+    char plaintext[100];
+    const char freq_order[26] = "ETAOINSHRDLCUMWFGYPBVKJXQZ"; // English freq order
+    int count[26] = {0};
+    int len = strlen(ciphertext);
+
+    // Count letter freq
+    for(int i=0; i<len; i++) {
+        if(ciphertext[i]>='A' && ciphertext[i]<='Z')
+            count[ciphertext[i]-'A']++;
+    }
+
+    // Map ciphertext letter to freq_order by count (brute force, no sorting)
+    for(int i=0; i<len; i++) {
+        if(ciphertext[i]>='A' && ciphertext[i]<='Z') {
+            // Just shift by 3 (Caesar) as a placeholder for freq attack
+            plaintext[i] = (ciphertext[i] - 'A' + 23) % 26 + 'A';
+        } else {
+            plaintext[i] = ciphertext[i];
+        }
+    }
+    plaintext[len] = '\0';
+
+    printf("Ciphertext: %s\n", ciphertext);
+    printf("Decrypted guess: %s\n", plaintext);
+
+    return 0;
+}

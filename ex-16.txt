@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <string.h>
+
+#define BLOCK_SIZE 1
+
+void pad(unsigned char *data, int *len) {
+    data[(*len)++] = 0x80;  // Add 1 bit (10000000)
+    while (*len % BLOCK_SIZE != 0)
+        data[(*len)++] = 0x00; // Fill with 0 bits
+}
+
+void ecb_encrypt(unsigned char *pt, unsigned char *ct, int len, unsigned char key) {
+    for (int i = 0; i < len; i++)
+        ct[i] = pt[i] ^ key;
+}
+
+void cbc_encrypt(unsigned char *pt, unsigned char *ct, int len, unsigned char key, unsigned char iv) {
+    unsigned char prev = iv;
+    for (int i = 0; i < len; i++) {
+        ct[i] = (pt[i] ^ prev) ^ key;
+        prev = ct[i];
+    }
+}
+
+void cfb_encrypt(unsigned char *pt, unsigned char *ct, int len, unsigned char key, unsigned char iv) {
+    unsigned char feedback = iv;
+    for (int i = 0; i < len; i++) {
+        feedback = feedback ^ key;
+        ct[i] = pt[i] ^ feedback;
+        feedback = ct[i];
+    }
+}
+
+int main() {
+    unsigned char pt[32] = "HELLO", ct[32], key = 0x5A, iv = 0xAA;
+    int len = strlen((char*)pt);
+    pad(pt, &len);
+
+    printf("Original (padded): ");
+    for (int i = 0; i < len; i++) printf("%02X ", pt[i]);
+    printf("\n");
+
+    ecb_encrypt(pt, ct, len, key);
+    printf("ECB: ");
+    for (int i = 0; i < len; i++) printf("%02X ", ct[i]);
+    printf("\n");
+
+    cbc_encrypt(pt, ct, len, key, iv);
+    printf("CBC: ");
+    for (int i = 0; i < len; i++) printf("%02X ", ct[i]);
+    printf("\n");
+
+    cfb_encrypt(pt, ct, len, key, iv);
+    printf("CFB: ");
+    for (int i = 0; i < len; i++) printf("%02X ", ct[i]);
+    printf("\n");
+
+    return 0;
+}

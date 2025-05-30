@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
+// Function to perform modular exponentiation
+int mod_exp(int base, int exp, int mod) {
+    int result = 1;
+    base = base % mod;
+    while (exp > 0) {
+        if (exp % 2 == 1)
+            result = (result * base) % mod;
+        exp = exp >> 1;
+        base = (base * base) % mod;
+    }
+    return result;
+}
+
+// Function to map character to integer (A=0, B=1, ..., Z=25)
+int char_to_int(char c) {
+    return c - 'A';
+}
+
+// Function to map integer to character
+char int_to_char(int i) {
+    return i + 'A';
+}
+
+int main() {
+    char message[] = "HELLO";
+    int e = 17;
+    int n = 3233;
+    int encrypted[100];
+    int decrypted[100];
+    int len = strlen(message);
+
+    // Encryption
+    for (int i = 0; i < len; i++) {
+        int m = char_to_int(message[i]);
+        encrypted[i] = mod_exp(m, e, n);
+    }
+
+    // Decryption (for demonstration, using known d)
+    int d = 2753; // In practice, d should be kept secret
+    for (int i = 0; i < len; i++) {
+        int c = encrypted[i];
+        decrypted[i] = mod_exp(c, d, n);
+    }
+
+    // Display results
+    printf("Original Message: %s\n", message);
+    printf("Encrypted: ");
+    for (int i = 0; i < len; i++)
+        printf("%d ", encrypted[i]);
+    printf("\nDecrypted Message: ");
+    for (int i = 0; i < len; i++)
+        printf("%c", int_to_char(decrypted[i]));
+    printf("\n");
+
+    return 0;
+}

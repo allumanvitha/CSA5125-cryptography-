@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <math.h>
+
+// Modular exponentiation
+int mod_exp(int base, int exp, int mod) {
+    int result = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp & 1) result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
+
+int main() {
+    int q = 23;      // public prime modulus
+    int a = 5;       // public base (primitive root modulo q)
+    int alice_x = 6; // Alice's secret
+    int bob_x = 15;  // Bob's secret
+
+    // Alice sends A = a^alice_x mod q
+    int A = mod_exp(a, alice_x, q);
+
+    // Bob sends B = a^bob_x mod q
+    int B = mod_exp(a, bob_x, q);
+
+    // Shared secret key computed by both
+    int alice_key = mod_exp(B, alice_x, q);
+    int bob_key = mod_exp(A, bob_x, q);
+
+    printf("Alice's key: %d\n", alice_key);
+    printf("Bob's key: %d\n", bob_key);
+
+    // What if they send xa instead of ax?
+    // If they send xa, then the key would be a^(x*a), which isn't the standard DH.
+    // This breaks the protocol as the secrets won't match.
+    return 0;
+}

@@ -1,0 +1,62 @@
+#include <stdio.h>
+
+// Compute modular inverse of 'a' modulo 'm'
+int modInverse(int a, int m) {
+    for (int x = 1; x < m; x++)
+        if ((a * x) % m == 1) return x;
+    return -1;
+}
+
+// Inverse of 2x2 matrix modulo 26
+int invertMatrix(int m[2][2], int inv[2][2]) {
+    int det = (m[0][0]*m[1][1] - m[0][1]*m[1][0]) % 26;
+    if (det < 0) det += 26;
+
+    int detInv = modInverse(det, 26);
+    if (detInv == -1) return 0; // Matrix not invertible
+
+    // Calculate inverse matrix elements
+    inv[0][0] =  ( m[1][1] * detInv) % 26;
+    inv[0][1] = (-m[0][1] * detInv + 26) % 26;
+    inv[1][0] = (-m[1][0] * detInv + 26) % 26;
+    inv[1][1] =  ( m[0][0] * detInv) % 26;
+
+    return 1;
+}
+
+// Multiply two 2x2 matrices modulo 26
+void multiply(int a[2][2], int b[2][2], int result[2][2]) {
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++) {
+            result[i][j] = 0;
+            for (int k = 0; k < 2; k++)
+                result[i][j] += a[i][k] * b[k][j];
+            result[i][j] %= 26;
+            if(result[i][j] < 0) result[i][j] += 26;
+        }
+}
+
+void printMatrix(int m[2][2]) {
+    for (int i = 0; i < 2; i++)
+        printf("%2d %2d\n", m[i][0], m[i][1]);
+}
+
+int main() {
+    // Known plaintext: "HI" "LL" (H=7, I=8, L=11)
+    int P[2][2] = {{7, 8}, {11, 11}}; // Plaintext matrix
+    int C[2][2] = {{19, 14}, {6, 6}}; // Ciphertext matrix
+
+    int P_inv[2][2], K[2][2];
+
+    if (!invertMatrix(P, P_inv)) {
+        printf("Plaintext matrix is not invertible modulo 26.\n");
+        return 1;
+    }
+
+    multiply(P_inv, C, K);
+
+    printf("Recovered key matrix:\n");
+    printMatrix(K);
+
+    return 0;
+}

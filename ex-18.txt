@@ -1,0 +1,19 @@
+#include <stdio.h>
+
+int modinv(int a, int m) {
+    int m0 = m, t, q;
+    int x0 = 0, x1 = 1;
+    while (a > 1) {
+        q = a / m;
+        t = m; m = a % m; a = t;
+        t = x0; x0 = x1 - q * x0; x1 = t;
+    }
+    return (x1 + m0) % m0;
+}
+
+int main() {
+    int e = 31, p = 59, q = 61, phi = (p-1)*(q-1);
+    int d = modinv(e, phi);
+    printf("Private key d = %d\n", d);
+    return 0;
+}

@@ -1,0 +1,16 @@
+#include <stdio.h>
+#include <stdint.h>
+
+void show_subkey_source(uint64_t key) {
+    uint32_t C = (key >> 28) & 0x0FFFFFFF; 
+    uint32_t D = key & 0x0FFFFFFF;         
+
+    printf("C (first 28 bits): 0x%07X\n", C);
+    printf("D (second 28 bits): 0x%07X\n", D);
+}
+
+int main() {
+    uint64_t key = 0x133457799BBCDFF1; 
+    show_subkey_source(key);
+    return 0;
+}

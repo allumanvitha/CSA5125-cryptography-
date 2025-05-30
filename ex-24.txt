@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <stdint.h>
+
+uint8_t sdes_encrypt(uint8_t pt, uint8_t key) { return pt ^ key; }
+
+void ctr_encrypt(uint8_t *pt, uint8_t *ct, int len, uint8_t key, uint8_t counter) {
+    for (int i = 0; i < len; i++)
+        ct[i] = pt[i] ^ sdes_encrypt(counter++, key);
+}
+
+void ctr_decrypt(uint8_t *ct, uint8_t *pt, int len, uint8_t key, uint8_t counter) {
+    for (int i = 0; i < len; i++)
+        pt[i] = ct[i] ^ sdes_encrypt(counter++, key);
+}
+
+int main() {
+    uint8_t pt[3] = {0x01, 0x02, 0x04}, ct[3], decrypted[3];
+    uint8_t key = 0xFD, counter = 0x00;
+
+    ctr_encrypt(pt, ct, 3, key, counter);
+    printf("Encrypted: %02X %02X %02X\n", ct[0], ct[1], ct[2]);
+
+    ctr_decrypt(ct, decrypted, 3, key, counter);
+    printf("Decrypted: %02X %02X %02X\n", decrypted[0], decrypted[1], decrypted[2]);
+    return 0;
+}

@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h> // Needed for strlen
+#include <time.h>
+
+void encrypt(const char *plaintext, int *key, char *cipher) {
+    for (int i = 0; plaintext[i] != '\0'; i++) {
+        cipher[i] = ((plaintext[i] - 'A') + key[i]) % 26 + 'A';
+    }
+    cipher[strlen(plaintext)] = '\0'; // Ensure null-termination
+}
+
+int main() {
+    char plaintext[] = "HELLO";
+    int key[100];
+    char ciphertext[100];
+
+    srand(time(NULL));
+    for (int i = 0; plaintext[i] != '\0'; i++) {
+        key[i] = rand() % 26; // Generate random key between 0-25
+    }
+
+    encrypt(plaintext, key, ciphertext);
+
+    printf("Plaintext : %s\n", plaintext);
+    printf("Key       : ");
+    for (int i = 0; plaintext[i] != '\0'; i++) {
+        printf("%d ", key[i]);
+    }
+    printf("\nCiphertext: %s\n", ciphertext);
+
+    return 0;
+}

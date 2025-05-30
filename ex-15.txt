@@ -1,0 +1,51 @@
+#include <stdio.h>
+
+// Simplified XOR function for blocks
+void xor_blocks(unsigned char *a, unsigned char *b, unsigned char *out, int size) {
+    for (int i = 0; i < size; i++) {
+        out[i] = a[i] ^ b[i];
+    }
+}
+
+// Simplified CBC-MAC function (block size = 4 bytes)
+void cbc_mac(unsigned char *key, unsigned char *message, int blocks, unsigned char *mac) {
+    unsigned char prev[4] = {0}; // IV = 0
+    unsigned char temp[4];
+    for (int i = 0; i < blocks; i++) {
+        xor_blocks(&message[i*4], prev, temp, 4);
+        // "Encrypt" step: XOR with key (simplified)
+        for (int j = 0; j < 4; j++) {
+            prev[j] = temp[j] ^ key[j];
+        }
+    }
+    for (int i = 0; i < 4; i++) mac[i] = prev[i];
+}
+
+int main() {
+    unsigned char key[4] = {1,2,3,4};
+    unsigned char X[4] = {10,20,30,40};
+    unsigned char T[4];    // MAC for one block message X
+    unsigned char XxorT[4];
+    unsigned char two_block_msg[8];
+    unsigned char mac_two_block[4];
+
+    cbc_mac(key, X, 1, T);
+
+    // Construct two-block message X || (X ⊕ T)
+    xor_blocks(X, T, XxorT, 4);
+    for (int i = 0; i < 4; i++) {
+        two_block_msg[i] = X[i];
+        two_block_msg[i+4] = XxorT[i];
+    }
+
+    // CBC MAC of two-block message
+    cbc_mac(key, two_block_msg, 2, mac_two_block);
+
+    printf("MAC for one-block message: ");
+    for(int i=0; i<4; i++) printf("%02X ", T[i]);
+    printf("\nMAC for two-block message X || (X ⊕ T): ");
+    for(int i=0; i<4; i++) printf("%02X ", mac_two_block[i]);
+    printf("\n");
+
+    return 0;
+}

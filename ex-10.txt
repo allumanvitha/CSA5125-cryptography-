@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX 1000
+
+// English letter frequency order (most common to least)
+char freq_order[] = "ETAOINSHRDLCUMWFGYPBVKJXQZ";
+
+// Function to count frequency of letters
+void count_freq(char *text, int *freq) {
+    for (int i = 0; text[i]; i++) {
+        if (isalpha(text[i])) freq[toupper(text[i]) - 'A']++;
+    }
+}
+
+// Function to sort indices based on frequencies (bubble sort for simplicity)
+void sort_freq(int *freq, int *sorted_idx) {
+    for (int i = 0; i < 26; i++) sorted_idx[i] = i;
+    for (int i = 0; i < 25; i++) {
+        for (int j = i + 1; j < 26; j++) {
+            if (freq[sorted_idx[j]] > freq[sorted_idx[i]]) {
+                int temp = sorted_idx[i];
+                sorted_idx[i] = sorted_idx[j];
+                sorted_idx[j] = temp;
+            }
+        }
+    }
+}
+
+// Apply mapping to ciphertext
+void decrypt(char *cipher, char *plain, int *map) {
+    for (int i = 0; cipher[i]; i++) {
+        if (isalpha(cipher[i])) {
+            int idx = toupper(cipher[i]) - 'A';
+            plain[i] = map[idx];
+        } else {
+            plain[i] = cipher[i];
+        }
+    }
+    plain[strlen(cipher)] = '\0';
+}
+
+int main() {
+    char ciphertext[MAX] = "ZOLSS AOLY PZ H WVUKL YLTVA PZ SVU AOL HWWVPUA";
+    int freq[26] = {0}, sorted_idx[26], map[26];
+    char plaintext[MAX];
+
+    count_freq(ciphertext, freq);
+    sort_freq(freq, sorted_idx);
+
+    // Map the most frequent letters in ciphertext to freq_order
+    for (int i = 0; i < 26; i++) {
+        map[sorted_idx[i]] = freq_order[i];
+    }
+
+    decrypt(ciphertext, plaintext, map);
+
+    printf("Ciphertext: %s\n", ciphertext);
+    printf("Guessed Plaintext: %s\n", plaintext);
+
+    return 0;
+}

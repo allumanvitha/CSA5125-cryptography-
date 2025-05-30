@@ -1,0 +1,32 @@
+#include <stdio.h>
+
+// Function to find gcd
+int gcd(int a, int b) {
+    while(b) { int t = b; b = a % b; a = t; }
+    return a;
+}
+
+// Encrypt using affine cipher: C = (a*p + b) % 26
+void encrypt(char *plain, char *cipher, int a, int b) {
+    for(int i = 0; plain[i] != '\0'; i++) {
+        if(plain[i] >= 'A' && plain[i] <= 'Z')
+            cipher[i] = ((a * (plain[i] - 'A') + b) % 26) + 'A';
+        else
+            cipher[i] = plain[i]; // keep non-letters unchanged
+    }
+}
+
+int main() {
+    char plaintext[] = "HELLO";
+    char ciphertext[100];
+    int a = 5, b = 8;
+
+    if (gcd(a, 26) != 1) {
+        printf("Invalid key: 'a' must be coprime with 26.\n");
+        return 1;
+    }
+
+    encrypt(plaintext, ciphertext, a, b);
+    printf("Ciphertext: %s\n", ciphertext);
+    return 0;
+}
